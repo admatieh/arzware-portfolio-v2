@@ -1,0 +1,15 @@
+{
+  "name": "arzware-portfolio-v2",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Arzware v2 — a sculptural, accessible digital atelier.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --serve",
+    "check": "node --check src/app.js && node --check src/scene.js && node --check scripts/build.mjs"
+  },
+  "dependencies": { "three": "0.180.0" },
+  "devDependencies": { "esbuild": "0.25.10" },
+  "engines": { "node": ">=20" }
+}

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://admatieh.github.io/arzware-portfolio-v2/sitemap.xml
