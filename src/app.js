@@ -1,137 +1,61 @@
 import './styles.css';
 
-// Content remains visible and links remain usable if enhancement fails.
-const root = document.documentElement;
-const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-let explicitPreference = null;
-try { explicitPreference = localStorage.getItem('arzware-motion'); } catch { /* Storage may be disabled. */ }
-let motionEnabled = explicitPreference === null ? !motionQuery.matches : explicitPreference === 'on';
-const motionButton = document.querySelector('#motion-toggle');
-
-function applyMotion() {
-  root.classList.toggle('motion-off', !motionEnabled);
-  motionButton.setAttribute('aria-pressed', String(!motionEnabled));
-  motionButton.setAttribute('aria-label', 'Pause decorative motion');
-  motionButton.querySelector('span').textContent = motionEnabled ? 'on' : 'off';
-  window.dispatchEvent(new CustomEvent('arzware:motion', { detail: { enabled: motionEnabled } }));
-}
-motionButton.addEventListener('click', () => {
-  motionEnabled = !motionEnabled;
-  explicitPreference = motionEnabled ? 'on' : 'off';
-  try { localStorage.setItem('arzware-motion', explicitPreference); } catch { /* Nonessential preference. */ }
-  applyMotion();
-});
-motionQuery.addEventListener('change', () => {
-  if (explicitPreference === null) {
-    motionEnabled = !motionQuery.matches;
-    applyMotion();
+const root=document.documentElement;
+const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
+let preference=null;
+try{preference=localStorage.getItem('arzware-motion')}catch{}
+let enabled=preference===null?!motionQuery.matches:preference==='on';
+const motionButton=document.querySelector('#motion-toggle');
+let frame=null,visible=true;
+function updateMotion(){
+  root.classList.toggle('motion-off',!enabled);
+  motionButton.setAttribute('aria-pressed',String(!enabled));
+  motionButton.querySelector('span').textContent=enabled?'on':'off';
+  if(!enabled){
+    if(frame!==null){cancelAnimationFrame(frame);frame=null}
+    document.querySelectorAll('[data-artifact]').forEach(el=>{el.style.setProperty('--drift-x','0px');el.style.setProperty('--drift-y','0px')});
   }
-});
-applyMotion();
-
-if ('IntersectionObserver' in window) {
-  const revealObserver = new IntersectionObserver(entries => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        revealObserver.unobserve(entry.target);
-      }
-    }
-  }, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
-  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-  root.classList.add('enhanced');
 }
-
-// Mobile navigation supports Escape, focus containment, and focus restoration.
-const menuButton = document.querySelector('.menu-toggle');
-const mobileNav = document.querySelector('#mobile-nav');
-const navQuery = window.matchMedia('(max-width: 800px)');
-function closeMenu(restoreFocus = false) {
-  menuButton.setAttribute('aria-expanded', 'false');
-  menuButton.setAttribute('aria-label', 'Open navigation');
-  mobileNav.hidden = true;
-  document.body.classList.remove('menu-open');
-  if (restoreFocus) menuButton.focus();
-}
-menuButton.addEventListener('click', () => {
-  if (menuButton.getAttribute('aria-expanded') === 'true') return closeMenu(true);
-  mobileNav.hidden = false;
-  menuButton.setAttribute('aria-expanded', 'true');
-  menuButton.setAttribute('aria-label', 'Close navigation');
-  document.body.classList.add('menu-open');
-  mobileNav.querySelector('a').focus();
+motionButton.addEventListener('click',()=>{
+  enabled=!enabled;preference=enabled?'on':'off';
+  try{localStorage.setItem('arzware-motion',preference)}catch{}
+  updateMotion();
 });
-mobileNav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
-  closeMenu();
-  const target = document.querySelector(link.getAttribute('href'));
-  target?.setAttribute('tabindex', '-1');
-  target?.focus({ preventScroll: true });
-}));
-navQuery.addEventListener('change', () => { if (!navQuery.matches) closeMenu(); });
-document.addEventListener('keydown', event => {
-  if (menuButton.getAttribute('aria-expanded') !== 'true') return;
-  if (event.key === 'Escape') { event.preventDefault(); closeMenu(true); }
-  if (event.key === 'Tab') {
-    const items = [menuButton, ...mobileNav.querySelectorAll('a')];
-    const first = items[0], last = items.at(-1);
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+motionQuery.addEventListener('change',()=>{if(preference===null){enabled=!motionQuery.matches;updateMotion()}});
+updateMotion();
+if('IntersectionObserver'in window){
+  const observer=new IntersectionObserver(entries=>{
+    for(const entry of entries)if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}
+  },{threshold:.07,rootMargin:'0px 0px -18px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));root.classList.add('enhanced');
+  if(location.hash){const target=document.getElementById(location.hash.slice(1));target?.querySelectorAll('.reveal').forEach(el=>el.classList.add('is-visible'))}
+}
+const toggle=document.querySelector('.menu-toggle'),menu=document.querySelector('#mobile-nav'),mobile=matchMedia('(max-width: 850px)');
+function closeMenu(restore=false){menu.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Open navigation');document.body.classList.remove('menu-open');if(restore)toggle.focus()}
+toggle.addEventListener('click',()=>{
+  if(toggle.getAttribute('aria-expanded')==='true')return closeMenu(true);
+  menu.hidden=false;toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Close navigation');document.body.classList.add('menu-open');menu.querySelector('a').focus();
+});
+menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>closeMenu()));
+mobile.addEventListener('change',()=>{if(!mobile.matches)closeMenu()});
+document.addEventListener('keydown',event=>{
+  if(toggle.getAttribute('aria-expanded')!=='true')return;
+  if(event.key==='Escape'){event.preventDefault();closeMenu(true)}
+  if(event.key==='Tab'){
+    const items=[toggle,...menu.querySelectorAll('a')],first=items[0],last=items.at(-1);
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
   }
 });
-
-// Manual selection avoids rotating content while a visitor reads it.
-const tabs = [...document.querySelectorAll('[role="tab"]')];
-const panels = [...document.querySelectorAll('[role="tabpanel"]')];
-const tabList = document.querySelector('[role="tablist"]');
-function updateTabOrientation() { tabList.setAttribute('aria-orientation', navQuery.matches ? 'horizontal' : 'vertical'); }
-updateTabOrientation();
-navQuery.addEventListener('change', updateTabOrientation);
-function activateTab(tab, focus = false) {
-  for (const item of tabs) {
-    const selected = item === tab;
-    item.setAttribute('aria-selected', String(selected));
-    item.tabIndex = selected ? 0 : -1;
-  }
-  for (const panel of panels) {
-    const selected = panel.id === tab.getAttribute('aria-controls');
-    panel.hidden = !selected;
-    panel.classList.remove('is-entering');
-    if (selected && motionEnabled) {
-      void panel.offsetWidth;
-      panel.classList.add('is-entering');
-    }
-  }
-  if (focus) tab.focus();
-}
-for (const tab of tabs) {
-  tab.addEventListener('click', () => activateTab(tab));
-  tab.addEventListener('keydown', event => {
-    const horizontal = tabList.getAttribute('aria-orientation') === 'horizontal';
-    const next = horizontal ? 'ArrowRight' : 'ArrowDown';
-    const previous = horizontal ? 'ArrowLeft' : 'ArrowUp';
-    let index = tabs.indexOf(tab);
-    if (event.key === next) index = (index + 1) % tabs.length;
-    else if (event.key === previous) index = (index - 1 + tabs.length) % tabs.length;
-    else if (event.key === 'Home') index = 0;
-    else if (event.key === 'End') index = tabs.length - 1;
-    else return;
-    event.preventDefault();
-    activateTab(tabs[index], true);
-  });
-}
-
-document.querySelector('#year').textContent = String(new Date().getFullYear());
-
-// The scene is an optional, lazy-loaded enhancement. It cannot block the page.
-const artifact = document.querySelector('#artifact');
-async function loadScene() {
-  try {
-    const { createSculpture } = await import('./scene.js');
-    createSculpture(artifact, { motionEnabled });
-  } catch (error) {
-    artifact.dataset.renderMode = 'fallback';
-    console.warn('Arzware: using the static sculpture.', error);
-  }
-}
-if ('requestIdleCallback' in window) window.requestIdleCallback(loadScene, { timeout: 1500 });
-else window.setTimeout(loadScene, 350);
+// Tiny pointer drift is confined to the visible hero. Touch scrolling remains native.
+const hero=document.querySelector('.hero'),art=hero?.querySelector('[data-artifact]'),fine=matchMedia('(pointer: fine)');
+function resetDrift(){art?.style.setProperty('--drift-x','0px');art?.style.setProperty('--drift-y','0px')}
+hero?.addEventListener('pointermove',event=>{
+  if(!enabled||!fine.matches||!visible||frame!==null)return;
+  const rect=hero.getBoundingClientRect(),x=(event.clientX-rect.left)/rect.width-.5,y=(event.clientY-rect.top)/rect.height-.5;
+  frame=requestAnimationFrame(()=>{frame=null;art.style.setProperty('--drift-x',`${x*9}px`);art.style.setProperty('--drift-y',`${y*7}px`)});
+},{passive:true});
+hero?.addEventListener('pointerleave',resetDrift);
+if(hero&&'IntersectionObserver'in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;hero.classList.toggle('art-paused',!visible)},{threshold:0}).observe(hero);
+document.addEventListener('visibilitychange',()=>root.classList.toggle('page-hidden',document.hidden));
+document.querySelectorAll('[data-year]').forEach(el=>el.textContent=String(new Date().getFullYear()));
