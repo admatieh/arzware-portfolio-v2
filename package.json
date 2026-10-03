@@ -1,18 +1,21 @@
 {
   "name": "arzware-portfolio-v2",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "type": "module",
-  "description": "Arzware — a quiet, illustrated journal of thoughtful work and human possibility.",
+  "description": "Arzware \u2014 original particle hero with a refined interactive business story.",
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "node scripts/build.mjs --serve",
-    "check": "node --check src/app.js && node --check src/pages.mjs && node --check scripts/build.mjs"
+    "check": "node --check src/app.js && node --check src/hero-scene.js && node --check src/playa-shape.js && node --check src/pages.mjs && node --check scripts/build.mjs"
   },
   "devDependencies": {
     "esbuild": "0.25.10"
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "three": "0.160.0"
   }
 }

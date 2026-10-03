@@ -1,72 +1,59 @@
-# Arzware — Good things take root
+# Arzware — version 2.2
 
-A quiet, illustrated website for Arzware. Five static pages pair poetic editorial typography with original antique-style architectural and botanical artwork, preserving the brand palette and business purpose.
+The original Arzware particle hero, with a redesigned business story, interactive starting points, service details, and solution scenarios below it.
 
-**Live:** https://admatieh.github.io/arzware-portfolio-v2/
+- Website: https://admatieh.github.io/arzware-portfolio-v2/
+- Alternative map artwork: https://admatieh.github.io/arzware-portfolio-v2/?art=playa
+- Original source: https://github.com/arzware/arzware-portfolio
 
-## Run and build
+## Design
 
-Requires Node.js 20 or later.
+The home page retains the original four particle forms, shaders, morph timing, Playfair Display headings, Space Grotesk body text, hero layout, logo, and charcoal / ivory / sand palette. Small adjustments improve narrow layouts and text contrast. The alternate artwork interprets Black Rock City's concentric and radial streets with the same point renderer.
+
+Below the hero, the page adds a business friction selector, three service stories with native disclosures, a four-step process, accessible scenario tabs, youth opportunities, an ecosystem illustration, practical FAQs, and a direct invitation to begin. Scenarios are illustrative possibilities; they do not claim completed client work or performance results.
+
+The five routes are `/`, `/work/`, `/way/`, `/people/`, and `/begin/`. Booking and email links retain the original `cal.com/arzware` and `hello@arzware.net` destinations.
+
+## Run
+
+Use Node.js 20 or newer:
 
 ```sh
 npm ci
+npm run check
+npm run build
 npm run dev
 ```
 
-Open http://127.0.0.1:4173. JS/CSS changes rebuild automatically. Restart after changing the page templates or public assets.
-
-```sh
-npm run check
-npm run build
-```
-
-Commit source and regenerated `docs/` together. GitHub Pages publishes **main → /docs**. CI verifies that the compiled files match the source.
-
-## Pages
-
-| Route | Purpose |
-|---|---|
-| `/` | The story: clarity, useful change, and human possibility |
-| `/work/` | Websites, customer journeys, connected operations, and quiet automation |
-| `/way/` | Listening, understanding, making with care, and improving |
-| `/people/` | Human judgment and supervised opportunities for Lebanese youth |
-| `/begin/` | Booking a review, email, and collaboration invitations |
-
-Every route is an actual HTML file, so direct links and refreshes work on GitHub Pages without a client router.
+The preview opens at http://127.0.0.1:4173/. JS and CSS rebuild automatically. Restart the preview after changing the HTML templates or public assets.
 
 ## Structure
 
 ```text
-src/pages.mjs          Content and shared semantic page templates
-src/app.js             Navigation, gentle drift, reveals and motion preferences
-src/styles.css         Palette, type, layouts and quiet motion
-scripts/build.mjs      Generates all HTML, sitemap and bundled JS/CSS
-public/assets/art/     Original transparent artwork, encoded as WebP
-public/assets/fonts/   Self-hosted Instrument Serif and Fraunces
-public/licenses/       Font license notices
-docs/                  Generated GitHub Pages site
+src/original-hero.html  Original hero markup
+src/hero.css           Preserved original styling
+src/hero-scene.js      Original Three.js geometry, shaders, and lifecycle
+src/playa-shape.js     Optional radial city sculpture
+src/pages.mjs          Five static page templates and original SVG diagrams
+src/app.js             Motion preferences, navigation, disclosures, and tabs
+src/styles.css         Supporting sections, responsiveness, and font declarations
+scripts/build.mjs      Static build, bundled assets, and sitemap
+public/                Self-hosted fonts, logo, social preview, and licenses
+docs/                  Committed GitHub Pages output
 ```
 
-## Visual direction
+## Motion and resilience
 
-- Warm ivory leads; charcoal, sand and copper carry the original palette.
-- Instrument Serif headings and italic phrases, with Fraunces reading text.
-- Original artwork: a cedar growing through a stone arch, an antique navigational instrument, and hands carrying a young tree. These are original compositions, not copied reference-site assets.
-- Broad editorial spacing, fine rules, illustrated plates and short, human language.
-- Restrained artifact floating and pointer drift, gentle reveals, and native page transitions where supported.
+Three.js is pinned to `0.160.0`, matching the original implementation. The scene loads as a separate local bundle. The renderer retains 16,000 particles on desktop and 6,000 on a mobile startup, with pixel ratio capped at 1.5 and 1.0 respectively. Animation and morph timers stop when the hero is outside the viewport or the page is hidden. The blur follows pointer movement only while needed.
 
-## Behavior and accessibility
+The site respects the operating system's reduced-motion preference and offers a persistent motion toggle. Paused motion keeps the hero text visible. Static original SVG artwork remains available if WebGL cannot start or loses its context. Content, contact links, and native disclosures remain available without JavaScript; all scenario panels are readable in that case.
 
-- Semantic HTML, one main heading per page, skip link, visible focus and meaningful image descriptions.
-- Mobile navigation with Escape, focus containment and focus restoration.
-- Native disclosure elements work without JavaScript.
-- Respects OS reduced-motion settings. The footer motion preference persists across pages.
-- Artwork animation pauses offscreen and when the page is hidden. Touch scrolling stays native.
-- Fonts, images and scripts are self-hosted. No WebGL, video, analytics, trackers, backend or secrets.
-- Existing booking destination: https://cal.com/arzware. Existing contact: hello@arzware.net.
+## Publish
 
-## Updating the site
+GitHub Pages publishes `main:/docs`. Build and commit source and `docs/` together. The validation workflow runs `npm ci`, syntax checks, and the build, then verifies that the published output matches the source. No deployment secrets, backend, or hosted 3D embed is required.
 
-Edit content in `src/pages.mjs`, visual tokens and layout in `src/styles.css`, and interactions in `src/app.js`. Run the build and commit the updated `docs/`. Update canonical URLs and `siteUrl` before deliberately moving the site to another domain.
+## Artwork and fonts
 
-Font licenses are included in `public/licenses/`. The original Arzware brand asset is retained for this authorized redesign.
+The original hero is reused from source commit `4c5b23515b003e3b605a9ce574a38cc6aa7454bf`. New diagrams and the optional map geometry are authored for this revision. The map is a sculptural interpretation, not a navigation map. Reference: https://burningman.org/black-rock-city/black-rock-city-2026/2026-black-rock-city-plan/
+
+Fonts are self-hosted with their SIL Open Font License files in `public/licenses/`. Three.js uses its MIT license; the build includes its linked license notice.
